@@ -39,7 +39,7 @@
 		});
  
 function addSubSectorRec(i,item) {
-	$("<ul/>").attr("id","sectorId" + item.id).appendTo("#sectorId" + item.parentId);
+	
 	$("<li/>")
 	//.attr("id","sectorEl" + item.id)
 	.click(function(){
@@ -70,12 +70,13 @@ function addSubSectorRec(i,item) {
 		});
 	})
 	.text(item.name)
-	.appendTo("#sectorId" + item.id);
+	.appendTo("#sectorId" + item.parentId);
 	
 	var subs = item.subSectors;
 	//if (subs instanceof Object) {
 	//TODO what is the difference between "!= null" and "instanceof Object" ?
 	if (subs != null) {
+		$("<ul/>").attr("id","sectorId" + item.id).appendTo("#sectorId" + item.parentId);
 		$.each(subs, function(i2, item2){
 			addSubSectorRec(i2, item2);
 		});
