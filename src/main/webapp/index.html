@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+<!-- 
+ <script src="http://code.jquery.com/jquery-latest.js"></script>
+ -->
+<!-- 
+ <script src="https://raw.github.com/vakata/jstree/v.1.0/dist/jstree.js"></script>
+ -->
+</head>
+<body>
+	<!-- TODO change to divs -->
+	<table border="1">
+		<tr>
+			<td rowspan="2" id="sectorContainer">
+			</td>
+			<td>
+				<table id="companyContainer"  border="1"></table>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<table id="personContainer"  border="1"></table>
+			</td>
+		</tr>
+	</table>
+	<br />
+	<script>
+
+		$(document).ready(function() {
+			$.getJSON("data/sector?sectorId=0", function(json) {
+				//Adding root list for the root sector
+				$("<ul/>").attr("id","sectorId0").appendTo("#sectorContainer");
+				$("<li/>").text(json.name).appendTo("#sectorId0");
+				$.each(json.subSectors, addSubSectorRec);
+			});
+
+		});
+ 
+function addSubSectorRec(i,item) {
+	$("<ul/>").attr("id","sectorId" + item.id).appendTo("#sectorId" + item.parentId);
+	$("<li/>")
+	//.attr("id","sectorEl" + item.id)
+	.click(function(){
+		$("#companyContainer").empty();
+		$("#personContainer").empty();
+		var colNames = "<th>Id</th><th>Name</th>";
+		$("<tr/>").append(colNames).appendTo("#companyContainer");
+		
+		$.getJSON("data/company?sectorId=" + item.id,function(json){
+			$.each(json,function(i,item){
+				var row = "<td>" + item.id + "</td><td>" + item.name + "</td>";
+				$("<tr/>")
+				.append(row)
+				.click(function(){
+					$.getJSON("data/person?companyId=" +item.id,function(json){
+						$("#personContainer").empty();
+						var colNames="<th>Id</th><th>FirstName</th><th>SecondName</th><th>Description</th>";
+						$("<tr/>").append(colNames).appendTo("#personContainer");
+						$.each(json,function(i,item){
+							var row = "<td>" + item.id + "</td><td>" + item.firstName + "</td>"
+										+ "<td>" + item.secondName + "</td><td>" + item.description + "</td>";
+							$("<tr>").append(row).appendTo("#personContainer");
+						});
+					});
+				})
+				.appendTo("#companyContainer");
+			});
+		});
+	})
+	.text(item.name)
+	.appendTo("#sectorId" + item.id);
+	
+	var subs = item.subSectors;
+	//if (subs instanceof Object) {
+	//TODO what is the difference between "!= null" and "instanceof Object" ?
+	if (subs != null) {
+		$.each(subs, function(i2, item2){
+			addSubSectorRec(i2, item2);
+		});
+	}
+}
+		
+		
+	</script>
+
+</body>
+</html>
